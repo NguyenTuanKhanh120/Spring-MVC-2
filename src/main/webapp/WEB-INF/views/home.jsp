@@ -160,7 +160,7 @@ document.querySelectorAll('.follow-btn').forEach(button => {
         const followingUserId = this.getAttribute('data-following');
         const followedUserId = this.getAttribute('data-followed');
         
-        fetch('/HelloSpring/follow/add', {
+        fetch('/SpringMVC/follow/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({ followingUserId, followedUserId })
@@ -179,7 +179,7 @@ document.querySelectorAll('.unfollow-btn').forEach(button => {
         const followingUserId = this.getAttribute('data-following');
         const followedUserId = this.getAttribute('data-followed');
         
-        fetch('/HelloSpring/follow/remove', {
+        fetch('/SpringMVC/follow/remove', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({ followingUserId, followedUserId })
