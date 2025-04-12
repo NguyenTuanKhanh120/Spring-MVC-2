@@ -8,11 +8,15 @@ import org.springframework.stereotype.Service;
 import com.abc.dao.FollowDAO;
 import com.abc.entities.User;
 
-@Service // Để Spring quản lý
+@Service
 public class FollowServiceImpl implements FollowService {
 
-	@Autowired
-    private FollowDAO followDAO;
+    private final FollowDAO followDAO;
+
+    @Autowired
+    public FollowServiceImpl(FollowDAO followDAO) {
+        this.followDAO = followDAO;
+    }
 
     @Override
     public List<User> getUserFollower(int id) {
@@ -37,5 +41,10 @@ public class FollowServiceImpl implements FollowService {
     @Override
     public void unfollowUser(int followingUserId, int followedUserId) {
         followDAO.unfollowUser(followingUserId, followedUserId);
+    }
+
+    @Override
+    public List<User> searchUsersByFollowCriteria(int minFollowing, int minFollowers) {
+        return followDAO.searchUsersByFollowCriteria(minFollowing, minFollowers);
     }
 }

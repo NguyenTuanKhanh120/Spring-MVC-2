@@ -15,12 +15,11 @@ import com.abc.entities.User;
 @Repository
 public class FollowDAO {
 
-
     public List<User> getFollowerUser(int id) {
         List<User> userFollower = new ArrayList<>();
-        String sql = "SELECT * FROM users "
-                   + "JOIN follows ON users.id = follows.following_user_id "
-                   + "WHERE follows.followed_user_id = ?";
+        String sql = "SELECT * FROM users " +
+                    "JOIN follows ON users.id = follows.following_user_id " +
+                    "WHERE follows.followed_user_id = ?";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -39,12 +38,11 @@ public class FollowDAO {
         return userFollower;
     }
 
-
     public List<User> getFollowedUsers(int id) {
         List<User> userFollowed = new ArrayList<>();
-        String sql = "SELECT * FROM users "
-                   + "JOIN follows ON users.id = follows.followed_user_id "
-                   + "WHERE follows.following_user_id = ?";
+        String sql = "SELECT * FROM users " +
+                    "JOIN follows ON users.id = follows.followed_user_id " +
+                    "WHERE follows.following_user_id = ?";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -63,7 +61,6 @@ public class FollowDAO {
         return userFollowed;
     }
 
-
     public void followUser(int followingUserId, int followedUserId) {
         String sql = "INSERT INTO follows (following_user_id, followed_user_id, created_at) VALUES (?, ?, NOW())";
         try (Connection conn = DatabaseConfig.getConnection();
@@ -75,7 +72,6 @@ public class FollowDAO {
             e.printStackTrace();
         }
     }
-
 
     public void unfollowUser(int followingUserId, int followedUserId) {
         String sql = "DELETE FROM follows WHERE following_user_id = ? AND followed_user_id = ?";
@@ -89,12 +85,11 @@ public class FollowDAO {
         }
     }
 
-
     public List<User> getSuggestedFollows(int userId) {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT u.* FROM users u "
-                   + "LEFT JOIN follows f ON u.id = f.followed_user_id AND f.following_user_id = ? "
-                   + "WHERE f.followed_user_id IS NULL AND u.id <> ?";
+        String sql = "SELECT u.* FROM users u " +
+                    "LEFT JOIN follows f ON u.id = f.followed_user_id AND f.following_user_id = ? " +
+                    "WHERE f.followed_user_id IS NULL AND u.id <> ?";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
@@ -109,6 +104,32 @@ public class FollowDAO {
                 ));
             }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    public List<User> searchUsersByFollowCriteria(int minFollowing, int minFollowers) {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT u.*, " +
+                     "(SELECT COUNT(*) FROM follows WHERE following_user_id = u.id) AS following_count, " +
+                     "(SELECT COUNT(*) FROM follows WHERE followed_user_id = u.id) AS follower_count " +
+                     "FROM users u " +
+                     "HAVING following_count >= ? AND follower_count >= ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, minFollowing);
+            stmt.setInt(2, minFollowers);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                users.add(new User(
+                    rs.getInt("id"),
+                    rs.getString("username"),
+                    rs.getString("password"),
+                    rs.getString("created_at")
+                ));
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return users;

@@ -1,3 +1,4 @@
+
 package com.abc.config;
 
 import org.springframework.context.annotation.ComponentScan;
